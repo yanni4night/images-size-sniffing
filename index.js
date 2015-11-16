@@ -51,7 +51,7 @@ function count(imagesSrc) {
   var counter = 0;
   var promises = imagesSrc.map(function(src) {
     return new Promise(function(resolve) {
-      // console.log('Heading', ++counter);
+      // curl -sI http://tb1.bdstatic.com/tb/%E5%9F%83%E8%8F%B2%E5%B0%94%E6%9C%B5%E6%9C%B5.jpg|grep "Content-Length"|awk '{print $2}'
       request.head(src, function(err, response) {
         if (!err) {
           resolve(response.headers['content-length']);
