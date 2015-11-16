@@ -11,53 +11,94 @@
  */
 
 var request = require('request');
-var jsdom = require('jsdom');
 var extend = require('extend');
+var Nightmare = require('nightmare');
+var vo = require('vo');
 
-exports.count = function(url, callback, options) {
-  options = extend({
-    filterImagesSrc: function(doc) {
-      return Array.prototype.map.call(doc.images, function(img) {
-        return img.src;
-      });
-    }
-  }, options);
 
-  jsdom.env(url, function(err, window) {
-    if (err) {
-      return callback(err);
-    }
+function* getImagesSrc(url, findImageCb) {
+  var n = new Nightmare({
+    width: 2560,
+    height: 1600,
+    show: true
+  });
 
-    var imagesSrc = options.filterImagesSrc(window.document);
+  var loaded = false;
 
-    // console.log('Total images:', imagesSrc.length)
+  yield n.on('dom-ready', function() {
+    loaded = true;
+  }).goto(url);
 
-    var counter = 0;
+  while (!loaded) {
+    yield n.wait(1e3);
+  }
 
-    var promises = imagesSrc.map(function(src) {
-      return new Promise(function(resolve, reject) {
-        // console.log('Heading', ++counter);
-        request.head(src, function(err, response) {
-          if (!err) {
-            resolve(response.headers['content-length']);
-          } else {
-            console.error(err);
-            resolve(0);
-          }
-        });
+  yield n.evaluate(function() {
+    document.body.scrollTop = document.body.scrollHeight;
+  });
+
+  // Wait for loading all <img>
+  yield n.wait(2e3);
+
+  var images = yield n.evaluate(findImageCb);
+
+  yield n.end();
+
+  return images;
+}
+
+function count(imagesSrc) {
+  var counter = 0;
+  var promises = imagesSrc.map(function(src) {
+    return new Promise(function(resolve) {
+      // console.log('Heading', ++counter);
+      request.head(src, function(err, response) {
+        if (!err) {
+          resolve(response.headers['content-length']);
+        } else {
+          console.error(err);
+          resolve(0);
+        }
       });
     });
+  });
 
+  return new Promise(function(resolve, reject) {
     Promise.all(promises).then(function(lenArr) {
       var total = 0;
       for (var i = 0; i < lenArr.length; ++i) {
         total += parseInt(lenArr[i]);
       }
-      callback(null, total);
+      resolve(total);
     }).catch(function(e) {
-      callback(e);
+      reject(e);
     });
+  });
+}
 
+exports.count = function(url, callback, options) {
+  options = extend({
+    filterImagesSrc: function() {
+      return Array.prototype.map.call(window.document.images, function(img) {
+        return img.src;
+      });
+    }
+  }, options);
+
+  new Promise(function(resolve, reject) {
+    vo(getImagesSrc)(url, options.filterImagesSrc, function(err, imagesSrc) {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(imagesSrc);
+      }
+    });
+  }).then(function(imagesSrc) {
+    return count(imagesSrc);
+  }).then(function(size) {
+    callback(null, size);
+  }).catch(function(e) {
+    callback(e);
   });
 
 };

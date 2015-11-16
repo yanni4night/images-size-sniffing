@@ -26,7 +26,8 @@
   "dependencies": {
     "extend": "^3.0.0",
     "human-format": "^0.5.0",
-    "jsdom": "^7.0.2",
-    "request": "^2.65.0"
+    "nightmare": "^2.0.7",
+    "request": "^2.65.0",
+    "vo": "^1.0.3"
   }
 }
