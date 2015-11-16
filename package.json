@@ -1,0 +1,30 @@
+{
+  "name": "images-size-sniffing",
+  "version": "1.0.0",
+  "description": "count images size",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha",
+  },
+  "bin": {
+    "iss": "bin/cli.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yanni4night/images-size-sniffing.git"
+  },
+  "keywords": [
+    "image",
+    "count"
+  ],
+  "author": "yanni4night@gmail.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/yanni4night/images-size-sniffing/issues"
+  },
+  "homepage": "https://github.com/yanni4night/images-size-sniffing",
+  "dependencies": {
+    "jsdom": "^7.0.2",
+    "request": "^2.65.0"
+  }
+}
