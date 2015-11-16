@@ -4,7 +4,7 @@
   "description": "count images size",
   "main": "index.js",
   "scripts": {
-    "test": "mocha",
+    "test": "mocha"
   },
   "bin": {
     "iss": "bin/cli.js"
@@ -24,6 +24,8 @@
   },
   "homepage": "https://github.com/yanni4night/images-size-sniffing",
   "dependencies": {
+    "extend": "^3.0.0",
+    "human-format": "^0.5.0",
     "jsdom": "^7.0.2",
     "request": "^2.65.0"
   }
