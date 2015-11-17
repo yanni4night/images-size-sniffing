@@ -16,7 +16,7 @@ var count = require('../').count;
 describe('images-size-sniffing', function() {
     describe('#count()', function() {
         
-        this.timeout(3e3);
+        this.timeout(1e4);
 
         it('should return a number', function(done) {
             count('http://www.baidu.com/', function(err, size) {
