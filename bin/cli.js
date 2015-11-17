@@ -14,8 +14,8 @@
 var url = process.argv[2];
 var humanFormat = require('human-format');
 
-console.log('Fetching ', url);
+console.log('Fetching...', url);
 
-require('../').count(url, function(err, size) {
-  console.log('Total:%s', humanFormat(size));
+require('../').count(url, function (err, size) {
+    console.log('Total:%s', humanFormat(size));
 });

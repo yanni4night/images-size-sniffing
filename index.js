@@ -38,7 +38,7 @@ function* getImagesSrc(url, findImageCb) {
     });
 
     // Wait for loading all <img>
-    yield n.wait(2e3);
+    yield n.wait(3e3);
 
     var images = yield n.evaluate(findImageCb);
 
@@ -55,9 +55,20 @@ function count(imagesSrc) {
             if (!src) {
                 return resolve(0);
             }
-            
-            request.head(src, function (err, response) {
+
+            var j = request.jar();
+            var cookie = request.cookie(
+                'BAIDUID=C3CB4FAD114136B8880A44C435B7738F:FG=1; max-age=31536000; expires=Wed, 16-Nov-16 05:30:12 GMT; domain=.baidu.com; path=/; version=1'
+            );
+            if (src.indexOf('.baidu.com') !== -1 && src.indexOf('m.tiebaimg.com') === -1) {
+                j.setCookie(cookie, src);
+            }
+            request.get({
+                url: src,
+                jar: j
+            }, function (err, response) {
                 if (!err) {
+                    // console.log(response.headers);
                     resolve(response.headers['content-length']);
                 } else {
                     console.error('ERROR:[%s]', src, err);
@@ -83,8 +94,10 @@ function count(imagesSrc) {
 exports.count = function (url, callback, options) {
     options = extend({
         filterImagesSrc: function () {
-            return Array.prototype.map.call(window.document.images, function (img) {
+            return Array.prototype.map.call(document.querySelectorAll('img'), function (img) {
                 return img.src;
+            }).filter(function (src) {
+                return src.indexOf('/c.gif') === -1;
             });
         }
     }, options);
